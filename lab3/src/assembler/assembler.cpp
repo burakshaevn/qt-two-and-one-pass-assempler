@@ -305,7 +305,7 @@ std::vector<std::string> Assembler::firstPass(const std::vector<std::vector<std:
 
     bool startFlag = false;
     bool endFlag = false;
-
+    bool firstMeaningfulLine = true;
     for (const auto& line : lines) {
         std::string textLine;
         for (const auto& token : line) {
@@ -333,6 +333,16 @@ std::vector<std::string> Assembler::firstPass(const std::vector<std::vector<std:
         std::string upperCmd = codeLine.getCommand();
         std::transform(upperCmd.begin(), upperCmd.end(), upperCmd.begin(), ::toupper);
         
+        if (firstMeaningfulLine) {
+            if (upperCmd != "START") {
+                throw AssemblerException(
+                    "Первая строка программы должна быть 'PROG START 0', "
+                    "а не '" + upperCmd + "'. Строка: " + textLine
+                    );
+            }
+            firstMeaningfulLine = false;
+        }
+
         // Debug: Check what we're processing
         bool isDir = isDirective(upperCmd);
         bool isCmd = isCommand(upperCmd);
